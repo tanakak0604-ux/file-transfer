@@ -11,45 +11,35 @@ export default function AuthPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (signInError) {
-      setError('メールアドレスまたはパスワードが違います');
-    }
-
+    if (signInError) setError('メールアドレスまたはパスワードが違います');
     setLoading(false);
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg, #2d0a1a 0%, #5c1a3d 25%, #1a3d1a 65%, #0a2d0a 100%)' }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#F5F2EC' }}>
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1
-            className="text-5xl font-bold mb-2 tracking-wide"
-            style={{ color: '#d4af37', textShadow: '0 0 20px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)' }}
-          >
-            FileTransfer
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold tracking-widest mb-1" style={{ color: '#2D2A24', letterSpacing: '0.15em' }}>
+            and to
           </h1>
-          <p style={{ color: '#a8c5a0' }} className="text-sm">ログインしてください</p>
+          <p className="text-xs tracking-widest uppercase" style={{ color: '#8C8880', letterSpacing: '0.2em' }}>
+            File Transfer
+          </p>
         </div>
 
         <div
           className="rounded-2xl p-8"
           style={{
-            background: 'rgba(10,10,10,0.85)',
-            border: '1px solid rgba(212,175,55,0.4)',
-            boxShadow: '0 0 40px rgba(212,175,55,0.15), 0 20px 60px rgba(0,0,0,0.6)',
-            backdropFilter: 'blur(10px)',
+            background: '#FDFAF5',
+            border: '1px solid #E2DDD4',
+            boxShadow: '0 4px 24px rgba(45,42,36,0.07)',
           }}
         >
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: '#a8c5a0' }}>
-                メールアドレス
+              <label className="text-xs font-semibold uppercase tracking-widest block mb-2" style={{ color: '#8C8880' }}>
+                Email
               </label>
               <input
                 type="email"
@@ -57,50 +47,46 @@ export default function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@andto.jp"
                 required
-                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                className="w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none"
                 style={{
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.3)',
-                  color: '#e8d5a3',
+                  background: '#F5F2EC',
+                  border: '1px solid #E2DDD4',
+                  color: '#2D2A24',
                 }}
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium block mb-1.5" style={{ color: '#a8c5a0' }}>
-                パスワード
+              <label className="text-xs font-semibold uppercase tracking-widest block mb-2" style={{ color: '#8C8880' }}>
+                Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="パスワード"
+                placeholder="••••••••"
                 required
-                className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                className="w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none"
                 style={{
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.3)',
-                  color: '#e8d5a3',
+                  background: '#F5F2EC',
+                  border: '1px solid #E2DDD4',
+                  color: '#2D2A24',
                 }}
               />
             </div>
 
             {error && (
-              <p className="text-sm text-center" style={{ color: '#e57373' }}>{error}</p>
+              <p className="text-xs text-center" style={{ color: '#C8694A' }}>{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 active:scale-[0.98]"
+              className="w-full py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.98]"
               style={
                 !loading
-                  ? {
-                      background: 'linear-gradient(135deg, #b8860b, #d4af37, #b8860b)',
-                      color: '#1a1a1a',
-                      boxShadow: '0 4px 20px rgba(212,175,55,0.4)',
-                    }
-                  : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)', cursor: 'not-allowed' }
+                  ? { background: '#2D2A24', color: '#F5F2EC' }
+                  : { background: '#E2DDD4', color: '#8C8880', cursor: 'not-allowed' }
               }
             >
               {loading ? 'ログイン中...' : 'ログイン'}
