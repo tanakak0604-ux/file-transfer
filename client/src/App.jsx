@@ -16,14 +16,7 @@ export default function App() {
   }, []);
 
   if (session === undefined) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #2d0a1a 0%, #5c1a3d 25%, #1a3d1a 65%, #0a2d0a 100%)' }}
-      >
-        <p style={{ color: '#a8c5a0' }}>読み込み中...</p>
-      </div>
-    );
+    return <div style={{ minHeight: '100vh', background: '#F5F2EC' }} />;
   }
 
   return (
