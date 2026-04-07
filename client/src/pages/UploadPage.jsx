@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as tus from 'tus-js-client';
 
-const MAX_SIZE = 10 * 1024 * 1024 * 1024; // 10GB
+const MAX_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B';
@@ -29,7 +29,7 @@ export default function UploadPage() {
 
   const handleFile = (f) => {
     if (!f) return;
-    if (f.size > MAX_SIZE) { setError('ファイルサイズは最大10GBまでです'); return; }
+    if (f.size > MAX_SIZE) { setError('ファイルサイズは最大1GBまでです'); return; }
     setError('');
     setFile(f);
   };
@@ -123,7 +123,7 @@ export default function UploadPage() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">FileTransfer</h1>
-          <p className="text-purple-200 text-sm">最大10GBのファイルを簡単に共有</p>
+          <p className="text-purple-200 text-sm">最大1GBのファイルを簡単に共有</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -150,7 +150,7 @@ export default function UploadPage() {
                 <div className="text-5xl mb-4">☁️</div>
                 <p className="text-gray-600 font-medium">ファイルをドロップ</p>
                 <p className="text-gray-400 text-sm mt-1">または クリックして選択</p>
-                <p className="text-gray-300 text-xs mt-3">最大 10GB</p>
+                <p className="text-gray-300 text-xs mt-3">最大 1GB</p>
               </div>
             )}
           </div>
