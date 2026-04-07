@@ -17,7 +17,9 @@ module.exports = async function handler(req, res) {
   if (!fileName || !fileSize) return res.status(400).json({ error: 'fileName and fileSize are required' });
 
   const fileId = uuidv4();
-  const storagePath = `${fileId}/${fileName}`;
+  const ext = fileName.includes('.') ? fileName.split('.').pop() : 'bin';
+  const safeExt = ext.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'bin';
+  const storagePath = `${fileId}/file.${safeExt}`;
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + (parseInt(expiryDays) || 7));
