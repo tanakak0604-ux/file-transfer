@@ -161,6 +161,31 @@ export default function DownloadPage() {
                 <p className="text-xs mb-4 text-center" style={{ color: '#C8694A' }}>{error}</p>
               )}
 
+              {downloading && (
+                <div className="mb-4">
+                  <div className="flex justify-between text-xs mb-1.5" style={{ color: '#8C8880' }}>
+                    <span>準備中...</span>
+                  </div>
+                  <div className="w-full rounded-full h-1.5 overflow-hidden" style={{ background: '#E2DDD4' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        background: '#C8694A',
+                        animation: 'indeterminate 1.4s ease-in-out infinite',
+                        width: '40%',
+                      }}
+                    />
+                  </div>
+                  <style>{`
+                    @keyframes indeterminate {
+                      0% { transform: translateX(-100%) scaleX(1); }
+                      50% { transform: translateX(100%) scaleX(1.5); }
+                      100% { transform: translateX(250%) scaleX(1); }
+                    }
+                  `}</style>
+                </div>
+              )}
+
               <button
                 onClick={handleDownload}
                 disabled={downloading || (fileInfo.hasPassword && !password)}
