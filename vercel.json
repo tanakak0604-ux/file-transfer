@@ -2,6 +2,7 @@
   "buildCommand": "npm install && cd client && npm install && npm run build",
   "outputDirectory": "client/build",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/complete/:path*", "destination": "/index.html" },
+    { "source": "/download/:path*", "destination": "/index.html" }
   ]
 }
