@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
 
   const { data: signedData, error: signError } = await supabase.storage
     .from('files')
-    .createSignedUrl(file.storage_path, 60);
+    .createSignedUrl(file.storage_path, 60, { download: file.original_name });
 
   if (signError) return res.status(500).json({ error: 'Failed to create download URL' });
 
