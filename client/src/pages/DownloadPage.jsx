@@ -30,13 +30,12 @@ export default function DownloadPage() {
     axios.get(`/api/files/${fileId}/info`)
       .then((res) => setFileInfo(res.data))
       .catch((err) => {
-        const msg = err.response?.data?.error;
         if (err.response?.status === 410) {
           setError('このファイルは有効期限が切れています');
         } else if (err.response?.status === 404) {
           setError('ファイルが見つかりません');
         } else {
-          setError(msg || 'ファイル情報の取得に失敗しました');
+          setError(err.response?.data?.error || 'ファイル情報の取得に失敗しました');
         }
       });
   }, [fileId]);
@@ -50,7 +49,6 @@ export default function DownloadPage() {
       });
       const { token } = verifyRes.data;
 
-      // Trigger browser download
       const url = `/api/files/${fileId}/download?token=${token}`;
       const a = document.createElement('a');
       a.href = url;
@@ -61,45 +59,62 @@ export default function DownloadPage() {
 
       setDone(true);
     } catch (err) {
-      const msg = err.response?.data?.error;
       if (err.response?.status === 401) {
         setError('パスワードが違います');
       } else {
-        setError(msg || 'ダウンロードに失敗しました');
+        setError(err.response?.data?.error || 'ダウンロードに失敗しました');
       }
     } finally {
       setDownloading(false);
     }
   };
 
+  const cardStyle = {
+    background: 'rgba(10,10,10,0.85)',
+    border: '1px solid rgba(212,175,55,0.4)',
+    boxShadow: '0 0 40px rgba(212,175,55,0.15), 0 20px 60px rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(10px)',
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-700 via-purple-700 to-indigo-800 flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4"
+      style={{ background: 'linear-gradient(135deg, #2d0a1a 0%, #5c1a3d 25%, #1a3d1a 65%, #0a2d0a 100%)' }}
+    >
       <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-white">FileTransfer</h1>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1
+            className="text-5xl font-bold mb-2 tracking-wide"
+            style={{ color: '#d4af37', textShadow: '0 0 20px rgba(212,175,55,0.5), 0 2px 4px rgba(0,0,0,0.8)' }}
+          >
+            FileTransfer
+          </h1>
+          <p style={{ color: '#a8c5a0' }} className="text-sm">最大1GBのファイルを簡単に共有</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="rounded-2xl p-8" style={cardStyle}>
           {error && !fileInfo ? (
-            // Fatal error (expired / not found)
-            <div className="text-center">
+            <div className="text-center py-4">
               <div className="text-5xl mb-4">😔</div>
-              <p className="text-gray-600 font-medium">{error}</p>
+              <p className="font-medium" style={{ color: '#e8d5a3' }}>{error}</p>
             </div>
           ) : !fileInfo ? (
-            <div className="text-center text-gray-400 py-8">読み込み中...</div>
+            <div className="text-center py-8" style={{ color: '#6b8f6b' }}>読み込み中...</div>
           ) : done ? (
             <div className="text-center">
-              <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-center justify-center w-16 h-16 rounded-full mx-auto mb-4"
+                style={{ background: 'rgba(45,122,45,0.2)', border: '2px solid rgba(45,122,45,0.5)' }}>
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: '#4ade80' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-lg font-bold text-gray-800 mb-1">ダウンロード開始！</p>
-              <p className="text-gray-500 text-sm">ブラウザのダウンロードをご確認ください</p>
+              <p className="text-lg font-bold mb-1" style={{ color: '#e8d5a3' }}>ダウンロード開始！</p>
+              <p className="text-sm" style={{ color: '#7a9e7a' }}>ブラウザのダウンロードをご確認ください</p>
               <button
                 onClick={() => { setDone(false); setPassword(''); }}
-                className="mt-5 text-sm text-violet-600 hover:underline"
+                className="mt-5 text-sm hover:underline"
+                style={{ color: '#d4af37' }}
               >
                 もう一度ダウンロード
               </button>
@@ -108,31 +123,33 @@ export default function DownloadPage() {
             <>
               {/* File info */}
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)' }}>
                   <span className="text-2xl">📄</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-lg break-all leading-tight">
+                  <p className="font-semibold text-lg break-all leading-tight" style={{ color: '#e8d5a3' }}>
                     {fileInfo.originalName}
                   </p>
-                  <p className="text-gray-400 text-sm mt-0.5">{formatBytes(fileInfo.size)}</p>
+                  <p className="text-sm mt-0.5" style={{ color: '#7a9e7a' }}>{formatBytes(fileInfo.size)}</p>
                 </div>
               </div>
 
               {/* Metadata */}
-              <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-2">
+              <div className="rounded-xl p-4 mb-6 space-y-2"
+                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.2)' }}>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">有効期限</span>
-                  <span className="text-gray-700 font-medium">{formatDate(fileInfo.expiresAt)}</span>
+                  <span style={{ color: '#6b8f6b' }}>有効期限</span>
+                  <span className="font-medium" style={{ color: '#a8c5a0' }}>{formatDate(fileInfo.expiresAt)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">ダウンロード数</span>
-                  <span className="text-gray-700 font-medium">{fileInfo.downloadCount} 回</span>
+                  <span style={{ color: '#6b8f6b' }}>ダウンロード数</span>
+                  <span className="font-medium" style={{ color: '#a8c5a0' }}>{fileInfo.downloadCount} 回</span>
                 </div>
                 {fileInfo.hasPassword && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">パスワード</span>
-                    <span className="text-yellow-600 font-medium">🔒 保護あり</span>
+                    <span style={{ color: '#6b8f6b' }}>パスワード</span>
+                    <span className="font-medium" style={{ color: '#d4af37' }}>🔒 保護あり</span>
                   </div>
                 )}
               </div>
@@ -140,7 +157,7 @@ export default function DownloadPage() {
               {/* Password input */}
               {fileInfo.hasPassword && (
                 <div className="mb-5">
-                  <label className="text-sm text-gray-600 font-medium block mb-1.5">
+                  <label className="text-sm font-medium block mb-1.5" style={{ color: '#a8c5a0' }}>
                     パスワード
                   </label>
                   <input
@@ -149,25 +166,35 @@ export default function DownloadPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleDownload()}
                     placeholder="パスワードを入力"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+                    style={{
+                      background: 'rgba(212,175,55,0.08)',
+                      border: '1px solid rgba(212,175,55,0.3)',
+                      color: '#e8d5a3',
+                    }}
                   />
                 </div>
               )}
 
               {/* Error */}
               {error && (
-                <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+                <p className="text-sm mb-4 text-center" style={{ color: '#e57373' }}>{error}</p>
               )}
 
               {/* Download button */}
               <button
                 onClick={handleDownload}
                 disabled={downloading || (fileInfo.hasPassword && !password)}
-                className={`w-full py-3 rounded-xl font-semibold text-white transition-all duration-200
-                  ${!downloading && (!fileInfo.hasPassword || password)
-                    ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg hover:shadow-xl active:scale-[0.98]'
-                    : 'bg-gray-300 cursor-not-allowed'
-                  }`}
+                className="w-full py-3 rounded-xl font-bold text-base transition-all duration-200 active:scale-[0.98]"
+                style={
+                  !downloading && (!fileInfo.hasPassword || password)
+                    ? {
+                        background: 'linear-gradient(135deg, #b8860b, #d4af37, #b8860b)',
+                        color: '#1a1a1a',
+                        boxShadow: '0 4px 20px rgba(212,175,55,0.4)',
+                      }
+                    : { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)', cursor: 'not-allowed' }
+                }
               >
                 {downloading ? 'ダウンロード準備中...' : 'ダウンロード'}
               </button>
