@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import * as tus from 'tus-js-client';
 
-const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB
 const MAX_SIZE = 10 * 1024 * 1024 * 1024; // 10GB
 
 function formatBytes(bytes) {
@@ -29,10 +29,7 @@ export default function UploadPage() {
 
   const handleFile = (f) => {
     if (!f) return;
-    if (f.size > MAX_SIZE) {
-      setError('ファイルサイズは最大10GBまでです');
-      return;
-    }
+    if (f.size > MAX_SIZE) { setError('ファイルサイズは最大10GBまでです'); return; }
     setError('');
     setFile(f);
   };
@@ -40,12 +37,8 @@ export default function UploadPage() {
   const onDrop = useCallback((e) => {
     e.preventDefault();
     setDragging(false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
+    handleFile(e.dataTransfer.files[0]);
   }, []);
-
-  const onDragOver = (e) => { e.preventDefault(); setDragging(true); };
-  const onDragLeave = () => setDragging(false);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -54,55 +47,62 @@ export default function UploadPage() {
     setError('');
 
     try {
-      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-
-      // 1. Init
+      // 1. Init: create file record
       const initRes = await axios.post('/api/upload/init', {
         fileName: file.name,
         fileSize: file.size,
-        totalChunks,
         expiryDays,
-        password: usePassword && password ? password : null,
       });
-      const { uploadId, fileId } = initRes.data;
+      const { fileId, uploadPath } = initRes.data;
 
-      // 2. Upload chunks
-      let uploadedBytes = 0;
-      let lastTime = Date.now();
-      let lastBytes = 0;
+      // 2. Upload directly to Supabase via TUS resumable upload
+      await new Promise((resolve, reject) => {
+        let lastLoaded = 0;
+        let lastTime = Date.now();
 
-      for (let i = 0; i < totalChunks; i++) {
-        const start = i * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, file.size);
-        const chunk = file.slice(start, end);
-
-        const formData = new FormData();
-        formData.append('chunk', chunk);
-        formData.append('uploadId', uploadId);
-        formData.append('chunkIndex', i);
-
-        await axios.post('/api/upload/chunk', formData, {
-          onUploadProgress: (e) => {
-            const chunkUploaded = uploadedBytes + e.loaded;
-            const pct = Math.round((chunkUploaded / file.size) * 100);
+        const upload = new tus.Upload(file, {
+          endpoint: `${process.env.REACT_APP_SUPABASE_URL}/storage/v1/upload/resumable`,
+          retryDelays: [0, 3000, 5000, 10000, 20000],
+          headers: {
+            authorization: `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`,
+            'x-upsert': 'false',
+          },
+          uploadDataDuringCreation: true,
+          removeFingerprintOnSuccess: true,
+          metadata: {
+            bucketName: 'files',
+            objectName: uploadPath,
+            contentType: file.type || 'application/octet-stream',
+            cacheControl: '3600',
+          },
+          chunkSize: 6 * 1024 * 1024, // 6MB chunks
+          onError: reject,
+          onProgress: (bytesUploaded, bytesTotal) => {
+            const pct = Math.round((bytesUploaded / bytesTotal) * 100);
             setProgress(pct);
 
             const now = Date.now();
             const elapsed = (now - lastTime) / 1000;
             if (elapsed > 0.5) {
-              const bytesPerSec = (chunkUploaded - lastBytes) / elapsed;
-              setSpeed(bytesPerSec);
+              setSpeed((bytesUploaded - lastLoaded) / elapsed);
               lastTime = now;
-              lastBytes = chunkUploaded;
+              lastLoaded = bytesUploaded;
             }
           },
+          onSuccess: resolve,
         });
 
-        uploadedBytes += end - start;
-      }
+        upload.findPreviousUploads().then((prev) => {
+          if (prev.length) upload.resumeFromPreviousUpload(prev[0]);
+          upload.start();
+        });
+      });
 
-      // 3. Complete
-      const completeRes = await axios.post('/api/upload/complete', { uploadId });
+      // 3. Complete: hash password & activate record
+      const completeRes = await axios.post('/api/upload/complete', {
+        fileId,
+        password: usePassword && password ? password : null,
+      });
 
       navigate(`/complete/${fileId}`, {
         state: {
@@ -121,41 +121,29 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-700 via-purple-700 to-indigo-800 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">FileTransfer</h1>
           <p className="text-purple-200 text-sm">最大10GBのファイルを簡単に共有</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Drop zone */}
           <div
             onClick={() => !uploading && inputRef.current?.click()}
             onDrop={onDrop}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
             className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-200
               ${dragging ? 'border-violet-500 bg-violet-50 scale-[1.01]' : 'border-gray-300 hover:border-violet-400 hover:bg-gray-50'}
-              ${uploading ? 'cursor-not-allowed opacity-60' : ''}
-            `}
+              ${uploading ? 'cursor-not-allowed opacity-60' : ''}`}
           >
-            <input
-              ref={inputRef}
-              type="file"
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files[0])}
-              disabled={uploading}
-            />
-
+            <input ref={inputRef} type="file" className="hidden" onChange={(e) => handleFile(e.target.files[0])} disabled={uploading} />
             {file ? (
               <div>
                 <div className="text-4xl mb-3">📄</div>
                 <p className="font-semibold text-gray-800 text-lg break-all">{file.name}</p>
                 <p className="text-gray-500 text-sm mt-1">{formatBytes(file.size)}</p>
-                {!uploading && (
-                  <p className="text-violet-500 text-xs mt-2">クリックしてファイルを変更</p>
-                )}
+                {!uploading && <p className="text-violet-500 text-xs mt-2">クリックしてファイルを変更</p>}
               </div>
             ) : (
               <div>
@@ -167,15 +155,11 @@ export default function UploadPage() {
             )}
           </div>
 
-          {/* Error */}
-          {error && (
-            <p className="mt-3 text-red-500 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="mt-3 text-red-500 text-sm text-center">{error}</p>}
 
           {/* Settings */}
           {!uploading && (
             <div className="mt-6 space-y-4">
-              {/* Expiry */}
               <div className="flex items-center justify-between">
                 <label className="text-sm text-gray-600 font-medium">有効期限</label>
                 <select
@@ -183,27 +167,18 @@ export default function UploadPage() {
                   onChange={(e) => setExpiryDays(Number(e.target.value))}
                   className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-400"
                 >
-                  <option value={1}>1日</option>
-                  <option value={3}>3日</option>
-                  <option value={7}>7日</option>
-                  <option value={14}>14日</option>
-                  <option value={30}>30日</option>
+                  {[1, 3, 7, 14, 30].map((d) => <option key={d} value={d}>{d}日</option>)}
                 </select>
               </div>
 
-              {/* Password toggle */}
               <div>
                 <div className="flex items-center justify-between">
                   <label className="text-sm text-gray-600 font-medium">パスワード保護</label>
                   <button
                     onClick={() => setUsePassword(!usePassword)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
-                      ${usePassword ? 'bg-violet-600' : 'bg-gray-300'}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${usePassword ? 'bg-violet-600' : 'bg-gray-300'}`}
                   >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200
-                        ${usePassword ? 'translate-x-6' : 'translate-x-1'}`}
-                    />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${usePassword ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
                 {usePassword && (
@@ -232,21 +207,17 @@ export default function UploadPage() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              {speed > 0 && (
-                <p className="text-xs text-gray-400 mt-1.5 text-right">{formatBytes(speed)}/s</p>
-              )}
+              {speed > 0 && <p className="text-xs text-gray-400 mt-1.5 text-right">{formatBytes(speed)}/s</p>}
             </div>
           )}
 
-          {/* Upload button */}
           <button
             onClick={handleUpload}
             disabled={!file || uploading}
             className={`mt-6 w-full py-3 rounded-xl font-semibold text-white transition-all duration-200
               ${file && !uploading
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg hover:shadow-xl active:scale-[0.98]'
-                : 'bg-gray-300 cursor-not-allowed'
-              }`}
+                : 'bg-gray-300 cursor-not-allowed'}`}
           >
             {uploading ? 'アップロード中...' : 'アップロード'}
           </button>
