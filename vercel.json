@@ -4,5 +4,11 @@
   "rewrites": [
     { "source": "/complete/:path*", "destination": "/index.html" },
     { "source": "/download/:path*", "destination": "/index.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cleanup",
+      "schedule": "0 3 * * *"
+    }
   ]
 }
