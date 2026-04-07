@@ -1,0 +1,5 @@
+node_modules/
+server/uploads/
+server/db.json
+.env
+client/build/
