@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as tus from 'tus-js-client';
 import JSZip from 'jszip';
+import { supabase } from '../lib/supabase';
 
 const MAX_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
 
@@ -168,6 +169,17 @@ export default function UploadPage() {
             FileTransfer
           </h1>
           <p style={{ color: '#a8c5a0' }} className="text-sm">最大1GBのファイルを簡単に共有</p>
+        </div>
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="text-xs px-3 py-1.5 rounded-lg transition-all duration-200"
+            style={{ color: '#7a9e7a', border: '1px solid rgba(255,255,255,0.1)' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            ログアウト
+          </button>
         </div>
 
         {/* Card */}
