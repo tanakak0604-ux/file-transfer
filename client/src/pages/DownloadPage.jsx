@@ -94,7 +94,7 @@ export default function DownloadPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-base font-bold mb-1" style={{ color: '#2D2A24' }}>ダウンロード開始</p>
+              <p className="text-base font-bold mb-1" style={{ color: '#2D2A24' }}>ダウンロードを開始します</p>
               <p className="text-xs" style={{ color: '#8C8880' }}>ブラウザのダウンロードをご確認ください</p>
               <button
                 onClick={() => { setDone(false); setPassword(''); }}
