@@ -150,7 +150,7 @@ export default function UploadPage() {
         <div className="text-center mb-8">
           <div className="inline-block">
             <img src={logo} alt="and to" style={{ width: '120px', display: 'block' }} />
-            <p className="text-xs uppercase" style={{ color: '#8C8880', width: '120px', marginTop: '8px', textAlign: 'justify', textAlignLast: 'justify' }}>
+            <p className="text-xs uppercase text-center" style={{ color: '#8C8880', width: '120px', marginTop: '8px', letterSpacing: '0.45em' }}>
               FILE TRANSFER
             </p>
           </div>
