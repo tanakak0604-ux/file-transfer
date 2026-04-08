@@ -23,7 +23,7 @@ export default function AuthPage() {
         <div className="text-center mb-10">
           <div className="inline-block">
             <img src={logo} alt="and to" style={{ width: '120px', display: 'block' }} />
-            <p className="text-xs tracking-widest uppercase text-center" style={{ color: '#8C8880', letterSpacing: '0.2em', width: '100%' }}>
+            <p className="text-xs tracking-widest uppercase text-center" style={{ color: '#8C8880', letterSpacing: '0.2em', width: '120px', marginTop: '8px' }}>
               File Transfer
             </p>
           </div>
