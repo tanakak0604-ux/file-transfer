@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import JSZip from 'jszip';
 import { supabase } from '../lib/supabase';
+import logo from '../logo.png';
 
 const MAX_SIZE = 5 * 1024 * 1024 * 1024;
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
@@ -147,9 +148,7 @@ export default function UploadPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#F5F2EC' }}>
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-widest mb-1" style={{ color: '#2D2A24', letterSpacing: '0.15em' }}>
-            and to
-          </h1>
+          <img src={logo} alt="and to" className="h-12 mx-auto mb-1" />
           <p className="text-xs tracking-widest uppercase" style={{ color: '#8C8880', letterSpacing: '0.2em' }}>
             File Transfer
           </p>

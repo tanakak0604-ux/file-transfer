@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import logo from '../logo.png';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
@@ -20,9 +21,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#F5F2EC' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold tracking-widest mb-1" style={{ color: '#2D2A24', letterSpacing: '0.15em' }}>
-            and to
-          </h1>
+          <img src={logo} alt="and to" className="h-12 mx-auto mb-1" />
           <p className="text-xs tracking-widest uppercase" style={{ color: '#8C8880', letterSpacing: '0.2em' }}>
             File Transfer
           </p>

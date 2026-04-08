@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import logo from '../logo.png';
 
 function formatBytes(bytes) {
   if (!bytes) return '—';
@@ -63,9 +64,7 @@ export default function DownloadPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#F5F2EC' }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-widest mb-1" style={{ color: '#2D2A24', letterSpacing: '0.15em' }}>
-            and to
-          </h1>
+          <img src={logo} alt="and to" className="h-12 mx-auto mb-1" />
           <p className="text-xs tracking-widest uppercase" style={{ color: '#8C8880', letterSpacing: '0.2em' }}>
             File Transfer
           </p>
