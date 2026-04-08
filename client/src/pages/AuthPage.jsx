@@ -21,8 +21,8 @@ export default function AuthPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#F5F2EC' }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <img src={logo} alt="and to" className="h-12 mx-auto mb-1" />
-          <p className="text-xs tracking-widest uppercase" style={{ color: '#8C8880', letterSpacing: '0.2em' }}>
+          <img src={logo} alt="and to" className="mx-auto mb-1" style={{ width: '120px' }} />
+          <p className="text-xs tracking-widest uppercase text-center" style={{ color: '#8C8880', letterSpacing: '0.2em', width: '120px', margin: '0 auto' }}>
             File Transfer
           </p>
         </div>
