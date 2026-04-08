@@ -35,10 +35,13 @@ export default function UploadPage() {
   const handleFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
     const arr = Array.from(newFiles);
-    const total = arr.reduce((sum, f) => sum + f.size, 0);
-    if (total > MAX_SIZE) { setError('合計ファイルサイズは最大5GBまでです'); return; }
-    setError('');
-    setFiles(arr);
+    setFiles((prev) => {
+      const merged = [...prev, ...arr];
+      const total = merged.reduce((sum, f) => sum + f.size, 0);
+      if (total > MAX_SIZE) { setError('合計ファイルサイズは最大5GBまでです'); return prev; }
+      setError('');
+      return merged;
+    });
   };
 
   const removeFile = (index) => setFiles((prev) => prev.filter((_, i) => i !== index));
