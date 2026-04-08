@@ -156,17 +156,6 @@ export default function UploadPage() {
           </div>
         </div>
 
-        <div className="flex justify-end mb-3">
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all duration-200"
-            style={{ color: '#8C8880', border: '1px solid #E2DDD4', background: 'transparent' }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#EDEBE4'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-          >
-            ログアウト
-          </button>
-        </div>
 
         <div
           className="rounded-2xl p-8"
