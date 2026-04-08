@@ -32,7 +32,7 @@ export default function CompletePage() {
         <div className="text-center mb-8">
           <div className="inline-block">
             <img src={logo} alt="and to" style={{ width: '120px', display: 'block' }} />
-            <p className="text-xs uppercase text-center" style={{ color: '#8C8880', width: '120px', marginTop: '8px', letterSpacing: '0.45em' }}>
+            <p className="text-xs uppercase text-center" style={{ color: '#8C8880', width: '120px', marginTop: '8px', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
               FILE TRANSFER
             </p>
           </div>
