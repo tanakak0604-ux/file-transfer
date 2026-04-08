@@ -4,7 +4,7 @@ import axios from 'axios';
 import JSZip from 'jszip';
 import { supabase } from '../lib/supabase';
 
-const MAX_SIZE = 1 * 1024 * 1024 * 1024;
+const MAX_SIZE = 5 * 1024 * 1024 * 1024;
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
 function formatBytes(bytes) {
@@ -36,7 +36,7 @@ export default function UploadPage() {
     if (!newFiles || newFiles.length === 0) return;
     const arr = Array.from(newFiles);
     const total = arr.reduce((sum, f) => sum + f.size, 0);
-    if (total > MAX_SIZE) { setError('合計ファイルサイズは最大1GBまでです'); return; }
+    if (total > MAX_SIZE) { setError('合計ファイルサイズは最大5GBまでです'); return; }
     setError('');
     setFiles(arr);
   };
@@ -186,7 +186,7 @@ export default function UploadPage() {
                 <div className="text-4xl mb-3">↑</div>
                 <p className="font-medium text-sm" style={{ color: '#2D2A24' }}>ファイルをドロップ</p>
                 <p className="text-xs mt-1" style={{ color: '#8C8880' }}>または クリックして選択（複数可）</p>
-                <p className="text-xs mt-3" style={{ color: '#B0AA9E' }}>最大 1GB</p>
+                <p className="text-xs mt-3" style={{ color: '#B0AA9E' }}>最大 5GB</p>
               </div>
             ) : (
               <div>
