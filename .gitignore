@@ -3,3 +3,5 @@ server/uploads/
 server/db.json
 .env
 client/build/
+api/env.php
+client/.env.production

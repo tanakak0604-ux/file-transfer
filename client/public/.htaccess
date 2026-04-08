@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /
+
+# api・uploadsディレクトリはそのまま通す
+RewriteCond %{REQUEST_URI} ^/api/ [NC,OR]
+RewriteCond %{REQUEST_URI} ^/uploads/ [NC]
+RewriteRule ^ - [L]
+
+# 実在するファイル・ディレクトリはそのまま
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# それ以外はReact Routerに渡す
+RewriteRule ^ index.html [L]

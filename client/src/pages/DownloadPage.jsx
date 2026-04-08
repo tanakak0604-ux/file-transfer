@@ -27,7 +27,7 @@ export default function DownloadPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    axios.get(`/api/files/${fileId}/info`)
+    axios.get(`/api/files/info.php?fileId=${fileId}`)
       .then((res) => setFileInfo(res.data))
       .catch((err) => {
         if (err.response?.status === 410) setError('このファイルは有効期限が切れています');
@@ -40,12 +40,12 @@ export default function DownloadPage() {
     setDownloading(true);
     setError('');
     try {
-      const verifyRes = await axios.post(`/api/files/${fileId}/verify`, {
+      const verifyRes = await axios.post(`/api/files/verify.php?fileId=${fileId}`, {
         password: fileInfo?.hasPassword ? password : undefined,
       });
       const { token } = verifyRes.data;
       const a = document.createElement('a');
-      a.href = `/api/files/${fileId}/download?token=${token}`;
+      a.href = `/api/files/download.php?fileId=${fileId}&token=${token}`;
       a.download = fileInfo?.originalName || 'download';
       document.body.appendChild(a);
       a.click();
